@@ -64,7 +64,12 @@ export default {
           dataType:'text',
           success: (data) => {
             if(data.indexOf('success') != -1){
-              location.hash = '/home';
+              this.$store.state.home.username = this.username;
+              this.$store.state.home.status = 1;
+              this.$message('登陆成功,三秒后跳转至首页');
+              setTimeout(function() {
+                  location.hash = '/home';
+              }, 3000);
             } else {
               this.errorInfo = data;
               this.pwisnull = true;
@@ -78,6 +83,8 @@ export default {
       },3000);
     },
     logout: function(){
+      this.$store.state.home.username = '';
+      this.$store.state.home.status = 0;
     }
   },
   mounted(){

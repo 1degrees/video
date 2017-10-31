@@ -14,7 +14,8 @@
             </template>
             <li class="tree-node">
               <div class="tree-item">
-                  <router-link :to="'login'" class="personal" title="登陆/注册" tag="a"></router-link>
+                  <router-link v-if="!userInfo" :to="'login'" class="personal" title="登陆/注册" tag="a"></router-link>
+                  <a class="user-info" v-else><img src="../assets/img/50.jpg" title="已登陆" /></a>
               </div>
             </li>
           </ul>
@@ -31,6 +32,12 @@ export default {
                {name:"视频",link:"mv"},
                {name:"购票",link:"buy"},
                {name:"关于",link:"about"}]
+    }
+  },
+  computed: {
+    userInfo: function () {
+      console.log(this.$store.state.home.username);
+      return this.$store.state.home.username && this.$store.state.home.status?true:false;
     }
   }
 }
@@ -94,6 +101,20 @@ a.personal{
   width: 100px;
   background: url(../assets/img/account-icon.gif) center no-repeat;
   vertical-align: middle;
+}
+a.user-info{
+    width: 80px;
+    display: inline-block;
+    height: 30px;
+    line-height: 30px;
+    border-left: 1px solid white;
+    vertical-align: middle;
+    text-align: center;
+}
+a.user-info>img{
+    width: 30px;
+    height: auto;
+    border-radius: 100%;
 }
 a.personal::before{
   content: '';

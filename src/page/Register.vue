@@ -17,25 +17,31 @@
         </div>
         <div class="register_index met-member">
             <div class="container">
-                <form class="form-register met-form bv-form" novalidate="novalidate">
+                <form class="form-register met-form bv-form">
                     <div class="form-group">
                         <div class="input-group">
                             <span class="input-group-addon"><i class="fa fa-user"></i></span>
-                            <input type="text" name="username" autocomplete="off" class="form-control" placeholder="会员名">
+                            <input type="text"  @blur="checkPhone" v-model="phone" name="phone" autocomplete="off" class="form-control" placeholder="手机号码">
+                        </div>
+                    <small class="help-block" data-bv-validator="stringLength" data-bv-for="username" data-bv-result="NOT_VALIDATED" v-show="phoneError">手机号码不正确</small></div>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                            <input type="text" v-model="username" name="username" autocomplete="off" class="form-control" placeholder="会员名">
                         </div>
                     <small class="help-block" data-bv-validator="stringLength" data-bv-for="username" data-bv-result="NOT_VALIDATED" style="display: none;">用户名必须在2-30个字符之间</small></div>
                     <div class="form-group">
                         <div class="input-group">
                             <span class="input-group-addon"><i class="fa fa-unlock-alt"></i></span>
-                            <input type="password" name="password"  autocomplete="off"  class="form-control" placeholder="密码">
+                            <input type="password" v-model="password0" name="password"  autocomplete="off"  class="form-control" placeholder="密码">
                         </div>
                     <small class="help-block" data-bv-validator="stringLength" data-bv-for="password" data-bv-result="NOT_VALIDATED" style="display: none;">密码必须在6-30个字符之间</small></div>
                     <div class="form-group">
                         <div class="input-group">
                             <span class="input-group-addon"><i class="fa fa-unlock-alt"></i></span>
-                            <input type="password" name="confirmpassword"  autocomplete="off" class="form-control" placeholder="重复密码">
+                            <input type="password" @blur="checkPassword" v-model="password1" name="confirmpassword"  autocomplete="off" class="form-control" placeholder="重复密码">
                         </div>
-                    <small class="help-block" data-bv-validator="identical" data-bv-for="confirmpassword" data-bv-result="NOT_VALIDATED" style="display: none;">两次密码输入不一致</small></div>
+                    <small class="help-block" data-bv-validator="identical" data-bv-for="confirmpassword" data-bv-result="NOT_VALIDATED" v-show="passwordError">两次密码输入不一致</small></div>
                     <div class="row login_code">
                         <div class="col-xs-8">
                             <div class="form-group">				
@@ -46,10 +52,10 @@
                         </div>
                         <div class="col-xs-4 login_code_img">
                             <img :src="imgUrl" class="img-responsive"/>
-                            <span @click="refresh"class="icon-refresh">看不清,刷新</span>
+                            <span @click="refresh" class="icon-refresh">看不清,刷新</span>
                         </div>
                     </div>
-                    <button class="btn btn-lg btn-primary btn-block" type="submit">立即注册</button>
+                    <button @click="registerUser" class="btn btn-lg btn-primary btn-block" type="button">立即注册</button>
                     <router-link class="btn btn-lg btn-primary btn-block login" :to="'login'" tag="a">已有账号？现在登陆</router-link>
                 </form>
             </div>
@@ -65,10 +71,12 @@ export default {
   name: 'login',
   data () {
     return {
+      phone : '',
       username : '',
-      password : '',
-      unisnull : false,
-      pwisnull : false,
+      password0 : '',
+      password1 : '',
+      phoneError : false,
+      passwordError : false,
       errorInfo:'此项不能为空',
       random : 1,
     }
@@ -79,8 +87,35 @@ export default {
       }
   },
   methods:{
-    refresh: function(){
+    checkPhone(){
+        let reg = /^\d{11}$/;
+        this.phoneError = !reg.test(this.phone);
+    },
+    checkPassword(){
+        this.passwordError = !this.password0 == this.password1;
+    },
+    refresh() {
         this.random = Math.random();
+    },
+    registerUser() {
+        if(!this.phoneError && !this.passwordError && this.phone && this.username && this.password0){
+           $.ajax({
+                url:'/cloudvideo/rest/user/register',
+                data:{phone: this.phone, username : this.username, password : this.password0},
+                type:'GET',
+                dataType:'text',
+                success: (data) => {
+                    if(data.indexOf('success') != -1){
+                        this.$message('三秒后跳转至首页');
+                        setTimeout(function() {
+                            location.hash = '/home';
+                        }, 3000);
+                    }else{
+                        this.$message('注册失败');
+                    }
+                }
+            })
+        };
     }
   },
   mounted(){

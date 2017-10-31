@@ -9,7 +9,7 @@ const mutations = {
 }
 const state = {
     username:'',
-    statu: 0,
+    status: 0,
 }
 export default {
     state,
